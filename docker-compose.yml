@@ -1,11 +1,29 @@
 services:
+  caddy:
+    image: caddy:2
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+      - "${HTTPS_PORT:-443}:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - jsonfrontend
+    networks:
+      - internal
+    env_file:
+      - .env
+    # restart: unless-stopped
+
   rawdataforecaster:
-    image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti_rawdataforecaster:${FORTI_TAG:-latest}
+    image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti/rawdataforecaster:${FORTI_TAG:-latest}
     build:
       context: ..
       dockerfile: rawdataforecaster/build/package/Dockerfile
-    ports:
-      - "5052:5052"
+    expose:
+      - "5052"
     volumes:
       - ./rawdataforecaster.config.json:/config.json:ro
       - ${FORECAST_DATA_PATH:-../data/forecast}:/data/forecast:ro
@@ -14,7 +32,7 @@ services:
       - internal
 
   correctedforecaster:
-    image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti_correctedforecaster:${FORTI_TAG:-latest}
+    image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti/correctedforecaster:${FORTI_TAG:-latest}
     build:
       context: ..
       dockerfile: correctedforecaster/build/package/Dockerfile
@@ -32,12 +50,12 @@ services:
       - internal
 
   jsonfrontend:
-    image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti_jsonfrontend:${FORTI_TAG:-latest}
+    image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti/jsonfrontend:${FORTI_TAG:-latest}
     build:
       context: ..
       dockerfile: jsonfrontend/build/package/Dockerfile
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     command:
       - "-upstream"
       - "${JSONFRONTEND_UPSTREAM:-rawdataforecaster:5052}"
@@ -48,3 +66,7 @@ services:
 
 networks:
   internal:
+
+volumes:
+  caddy_data:
+  caddy_config:

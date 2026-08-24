@@ -1,0 +1,23 @@
+# Caddyfile for Forti reverse proxy
+#
+# Environment variables:
+# - DOMAIN: Domain name for automatic HTTPS (e.g., forti.example.com)
+#           If not set, uses localhost with HTTP only
+
+# For localhost: HTTP on port 80
+# For real domains: automatic HTTPS on port 443
+{$DOMAIN:http://localhost} {
+	# Automatic HTTPS if DOMAIN is set
+	# When DOMAIN=localhost, Caddy uses HTTP only
+
+	# Main forecast API
+	handle_path /forecast.json {
+		reverse_proxy jsonfrontend:8080
+	}
+
+	# Access logging
+	log {
+		output stdout
+		format json
+	}
+}

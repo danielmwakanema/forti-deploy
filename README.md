@@ -17,9 +17,10 @@ By default, the Compose setup expects forecast data to be available at `../data/
 
 | Service | Description | Default port |
 |---|---|---|
-| `rawdataforecaster` | Serves forecast data over gRPC from a local directory | `5052` |
-| `correctedforecaster` | Post-processes forecast data and re-exposes it over gRPC | — |
-| `jsonfrontend` | REST API that serves point forecast timeseries as JSON | `8080` |
+| `caddy` | Reverse proxy with automatic HTTPS and SSL termination | `80`, `443` |
+| `rawdataforecaster` | Serves forecast data over gRPC from a local directory | Internal only |
+| `correctedforecaster` | Post-processes forecast data and re-exposes it over gRPC | Internal only |
+| `jsonfrontend` | REST API that serves point forecast timeseries as JSON | Internal only (proxied via Caddy) |
 
 `correctedforecaster` is optional and must be enabled via a Docker Compose [profile](#profiles).
 
@@ -34,8 +35,10 @@ docker compose up --build
 Test that the API is responding:
 
 ```bash
-curl 'http://localhost:8080/?lat=59&lon=11'
+curl 'http://localhost/forecast.json?lat=59&lon=11'
 ```
+
+By default, the reverse proxy listens on port 80 and forwards requests to `jsonfrontend`.
 
 ### Enabling correctedforecaster
 
@@ -48,10 +51,39 @@ JSONFRONTEND_UPSTREAM=correctedforecaster:5051
 
 Both need to change together: `COMPOSE_PROFILES` starts the container, and `JSONFRONTEND_UPSTREAM` points `jsonfrontend` at it. Leave `COMPOSE_PROFILES` empty (or unset) to run without correction.
 
+## Reverse proxy and HTTPS
+
+All external traffic goes through [Caddy](https://caddyserver.com/), which provides:
+
+- **SSL termination** with automatic HTTPS certificate provisioning
+- **Extensibility** for adding other endpoints
+- **Access logging** in JSON format
+
+### Local development (HTTP only)
+
+By default, Caddy runs in HTTP mode on `localhost:80`. No additional configuration needed.
+
+### Production deployment with HTTPS
+
+Set the `DOMAIN` environment variable to enable automatic HTTPS:
+
+```bash
+DOMAIN=forti.example.com docker compose up
+```
+
+Caddy will automatically obtain and renew Let's Encrypt certificates. Make sure:
+
+1. Port 443 is accessible from the internet
+2. DNS for your domain points to the server
+3. Caddy can write to its data volume (handled automatically by Docker)
+
 ## Environment variables
 
 | Variable | Default | Description |
 |---|---|---|
+| `DOMAIN` | `localhost` | Domain name for automatic HTTPS (e.g., `forti.example.com`). Leave as `localhost` for local HTTP. |
+| `HTTP_PORT` | `80` | HTTP port for Caddy |
+| `HTTPS_PORT` | `443` | HTTPS port for Caddy (also HTTP/3 over UDP) |
 | `FORECAST_DATA_PATH` | `../data/forecast` | Path to the local forecast data directory |
 | `TOPOGRAPHY_DATA_PATH` | `../data/topography` | Path to the local topography data directory (used by `correctedforecaster`) |
 | `JSONFRONTEND_UPSTREAM` | `rawdataforecaster:5052` | gRPC upstream address for `jsonfrontend` |
