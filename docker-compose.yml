@@ -34,6 +34,7 @@ services:
     command: ["-config", "/config.json", "-serve-stats"]
     networks:
       - internal
+    restart: unless-stopped
 
   correctedforecaster:
     image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti/correctedforecaster:${FORTI_TAG:-latest}
@@ -52,6 +53,7 @@ services:
       - rawdataforecaster
     networks:
       - internal
+    restart: unless-stopped
 
   jsonfrontend:
     image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti/jsonfrontend:${FORTI_TAG:-latest}
@@ -68,6 +70,7 @@ services:
       - rawdataforecaster
     networks:
       - internal
+    restart: unless-stopped
 
   healthz:
     image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti/healthz:${FORTI_TAG:-latest}
@@ -82,11 +85,12 @@ services:
       - jsonfrontend
     networks:
       - internal
+    restart: unless-stopped
 
   prometheus:
     image: prom/prometheus:latest
     ports:
-      - "${PROMETHEUS_PORT:-9091}:9090"
+      - "127.0.0.1:${PROMETHEUS_PORT:-9091}:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
