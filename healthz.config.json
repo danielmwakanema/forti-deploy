@@ -1,0 +1,43 @@
+{
+    "headers": {
+        "System": "local",
+        "Service": "forti",
+        "Responsible": "local-dev"
+    },
+    "request": {
+        "protocol": "http",
+        "servers": [
+            "jsonfrontend:8080"
+        ],
+        "path_template": "/?lat={{.Latitude}}&lon={{.Longitude}}",
+        "timeout": "5s"
+    },
+    "probe_history": {
+        "size": 10,
+        "max_failed_probes": 2
+    },
+    "probe": {
+        "max_failed_locations": 0,
+        "locations": [
+            {
+                "name": "oslo",
+                "lat": 59.91,
+                "lon": 10.75,
+                "blueprint": {
+                    "max_age": "6h",
+                    "timeseries": {
+                        "timeresolution": ["1h"],
+                        "minduration": "24h"
+                    },
+                    "data": {
+                        "instant": {
+                            "details": {
+                                "air_temperature": { "min_count": 10, "min": -50, "max": 50}
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}
