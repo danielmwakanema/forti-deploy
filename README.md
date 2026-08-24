@@ -21,6 +21,7 @@ By default, the Compose setup expects forecast data to be available at `../data/
 | `rawdataforecaster` | Serves forecast data over gRPC from a local directory | Internal only |
 | `correctedforecaster` | Post-processes forecast data and re-exposes it over gRPC | Internal only |
 | `jsonfrontend` | REST API that serves point forecast timeseries as JSON | Internal only (proxied via Caddy) |
+| `healthz` | Health monitoring service that runs integration tests | Internal only (proxied via Caddy) |
 
 `correctedforecaster` is optional and must be enabled via a Docker Compose [profile](#profiles).
 
@@ -39,6 +40,20 @@ curl 'http://localhost/forecast.json?lat=59&lon=11'
 ```
 
 By default, the reverse proxy listens on port 80 and forwards requests to `jsonfrontend`.
+
+### Health monitoring
+
+The `healthz` service continuously runs integration tests against `jsonfrontend` and exposes the results via HTTP:
+
+```bash
+# Simple health status (returns 200 OK if healthy, 503 if not)
+curl http://localhost/healthz
+
+# Detailed health status (JSON)
+curl http://localhost/healthz/full
+```
+
+The health check configuration is in `healthz.config.json` and can be customized to test different locations and parameters.
 
 ### Enabling correctedforecaster
 

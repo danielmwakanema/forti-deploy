@@ -11,10 +11,11 @@ services:
       - caddy_config:/config
     depends_on:
       - jsonfrontend
+      - healthz
     networks:
       - internal
     environment:
-      - DOMAIN=${DOMAIN}
+      - "DOMAIN=${DOMAIN:-http://localhost}"
     restart: unless-stopped
 
   rawdataforecaster:
@@ -61,6 +62,20 @@ services:
       - "${JSONFRONTEND_UPSTREAM:-rawdataforecaster:5052}"
     depends_on:
       - rawdataforecaster
+    networks:
+      - internal
+
+  healthz:
+    image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti/healthz:${FORTI_TAG:-latest}
+    build:
+      context: ..
+      dockerfile: healthz/build/package/Dockerfile
+    expose:
+      - "8080"
+    volumes:
+      - ./healthz.config.json:/etc/forti/probes.json:ro
+    depends_on:
+      - jsonfrontend
     networks:
       - internal
 

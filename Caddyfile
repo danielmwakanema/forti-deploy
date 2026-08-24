@@ -15,6 +15,11 @@
 		reverse_proxy jsonfrontend:8080
 	}
 
+	# Health check endpoint
+	handle /healthz* {
+		reverse_proxy healthz:8080
+	}
+
 	# Access logging
 	log {
 		output stdout
