@@ -13,9 +13,9 @@ services:
       - jsonfrontend
     networks:
       - internal
-    env_file:
-      - .env
-    # restart: unless-stopped
+    environment:
+      - DOMAIN=${DOMAIN}
+    restart: unless-stopped
 
   rawdataforecaster:
     image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti/rawdataforecaster:${FORTI_TAG:-latest}
