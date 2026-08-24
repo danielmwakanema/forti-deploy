@@ -4,6 +4,12 @@
 # - DOMAIN: Domain name for automatic HTTPS (e.g., forti.example.com)
 #           If not set, uses localhost with HTTP only
 
+# Global options
+{
+	# Enable admin API for metrics
+	admin :2019
+}
+
 # For localhost: HTTP on port 80
 # For real domains: automatic HTTPS on port 443
 {$DOMAIN:http://localhost} {

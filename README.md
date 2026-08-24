@@ -22,6 +22,7 @@ By default, the Compose setup expects forecast data to be available at `../data/
 | `correctedforecaster` | Post-processes forecast data and re-exposes it over gRPC | Internal only |
 | `jsonfrontend` | REST API that serves point forecast timeseries as JSON | Internal only (proxied via Caddy) |
 | `healthz` | Health monitoring service that runs integration tests | Internal only (proxied via Caddy) |
+| `prometheus` | Metrics collection and monitoring | `9091` (web UI) |
 
 `correctedforecaster` is optional and must be enabled via a Docker Compose [profile](#profiles).
 
@@ -54,6 +55,41 @@ curl http://localhost/healthz/full
 ```
 
 The health check configuration is in `healthz.config.json` and can be customized to test different locations and parameters.
+
+### Monitoring with Prometheus
+
+Prometheus is included for monitoring service metrics. Access the Prometheus web UI at:
+
+```bash
+http://localhost:9091
+```
+
+Prometheus automatically scrapes metrics from:
+- **`jsonfrontend`** — REST API metrics (request duration, gzip usage, error counters)
+- **`rawdataforecaster`** — gRPC service metrics (area requests, grid distances, dataset versions)
+- **`caddy`** — Reverse proxy metrics (HTTP requests, response codes, TLS handshakes)
+- **`prometheus`** — Self-monitoring metrics
+
+The configuration is in `prometheus.yml`. Metrics are retained for 15 days by default.
+
+Some useful metrics queries:
+
+**jsonfrontend:**
+- Request duration: `forti_jsonfrontend_total_processing_duration_seconds`
+- Upstream processing time: `forti_jsonfrontend_upstream_processing_duration_seconds`
+- Requests outside coverage: `forti_jsonfrontend_outside_all_grids`
+- Gzipped responses: `forti_jsonfrontend_responses_with_gzip`
+
+**rawdataforecaster:**
+- Area request counts: `forti_requested_areas_total`
+- Distance to grid point: `forti_distance_to_selected_grid_point`
+- Active dataset version: `forti_active_latest`
+- Dataset update time: `forti_active_updated`
+- gRPC request duration: `grpc_server_handling_seconds`
+
+**caddy:**
+- HTTP requests: `caddy_http_requests_total`
+- Response status: `caddy_http_response_status_count`
 
 ### Enabling correctedforecaster
 
@@ -99,6 +135,7 @@ Caddy will automatically obtain and renew Let's Encrypt certificates. Make sure:
 | `DOMAIN` | `localhost` | Domain name for automatic HTTPS (e.g., `forti.example.com`). Leave as `localhost` for local HTTP. |
 | `HTTP_PORT` | `80` | HTTP port for Caddy |
 | `HTTPS_PORT` | `443` | HTTPS port for Caddy (also HTTP/3 over UDP) |
+| `PROMETHEUS_PORT` | `9091` | Prometheus web UI port |
 | `FORECAST_DATA_PATH` | `../data/forecast` | Path to the local forecast data directory |
 | `TOPOGRAPHY_DATA_PATH` | `../data/topography` | Path to the local topography data directory (used by `correctedforecaster`) |
 | `JSONFRONTEND_UPSTREAM` | `rawdataforecaster:5052` | gRPC upstream address for `jsonfrontend` |

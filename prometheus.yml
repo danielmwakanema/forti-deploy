@@ -1,0 +1,39 @@
+# Prometheus configuration for Forti services
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'forti-local'
+    environment: 'development'
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # jsonfrontend metrics (REST API frontend)
+  - job_name: 'jsonfrontend'
+    static_configs:
+      - targets: ['jsonfrontend:9090']
+    metrics_path: /metrics
+
+  # Caddy metrics (admin API)
+  - job_name: 'caddy'
+    static_configs:
+      - targets: ['caddy:2019']
+    metrics_path: /metrics
+
+  # rawdataforecaster metrics (gRPC service)
+  - job_name: 'rawdataforecaster'
+    static_configs:
+      - targets: ['rawdataforecaster:8080']
+    metrics_path: /metrics
+
+  # correctedforecaster metrics (gRPC service)
+  # Only scraped if the corrected profile is active and -serve-stats is enabled
+  # - job_name: 'correctedforecaster'
+  #   static_configs:
+  #     - targets: ['correctedforecaster:8080']
+  #   metrics_path: /metrics
