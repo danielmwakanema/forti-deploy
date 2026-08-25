@@ -1,6 +1,6 @@
-# Deploy
+# Forti Deploy
 
-This folder contains configuration for running Forti locally using Docker Compose. It brings up the core services — `rawdataforecaster`, `correctedforecaster`, and `jsonfrontend` — using local forecast data.
+This repository contains configuration for deploying [Forti](github.com/metno/forti) using Docker Compose. It brings up the core services — `rawdataforecaster`, `correctedforecaster`, and `jsonfrontend` — using local forecast data.
 
 ## Prerequisites
 
@@ -11,7 +11,7 @@ This folder contains configuration for running Forti locally using Docker Compos
 
 Forecast data can be produced using [forti-prep](https://github.com/metno/forti-prep), a companion tool that downloads and post-processes the input datasets into the format expected by Forti.
 
-By default, the Compose setup expects forecast data to be available at `../data/forecast` (relative to this folder), which corresponds to `data/forecast/` in the repository root. You can override this with the `FORECAST_DATA_PATH` environment variable.
+By default, the Compose setup expects forecast data to be available at `../data/forecast` (relative to this repository). You can override this with the `FORECAST_DATA_PATH` environment variable.
 
 ## Services
 
@@ -140,7 +140,7 @@ Caddy will automatically obtain and renew Let's Encrypt certificates. Make sure:
 | `TOPOGRAPHY_DATA_PATH` | `../data/topography` | Path to the local topography data directory (used by `correctedforecaster`) |
 | `JSONFRONTEND_UPSTREAM` | `rawdataforecaster:5052` | gRPC upstream address for `jsonfrontend` |
 
-These can be set in a `.env` file in this directory (`.env` is gitignored). Copy `.env.example` as a starting point:
+These can be set in a `.env` file in the repository root (`.env` is gitignored). Copy `.env.example` as a starting point:
 
 ```bash
 cp .env.example .env
