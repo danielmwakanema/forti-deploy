@@ -22,9 +22,6 @@ services:
 
   rawdataforecaster:
     image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti/rawdataforecaster:${FORTI_TAG:-latest}
-    build:
-      context: ..
-      dockerfile: rawdataforecaster/build/package/Dockerfile
     expose:
       - "5052"
       - "8080"
@@ -38,9 +35,6 @@ services:
 
   correctedforecaster:
     image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti/correctedforecaster:${FORTI_TAG:-latest}
-    build:
-      context: ..
-      dockerfile: correctedforecaster/build/package/Dockerfile
     profiles: ["corrected"]
     volumes:
       - ${TOPOGRAPHY_DATA_PATH:-../data/topography}:/data/topography:ro
@@ -57,9 +51,6 @@ services:
 
   jsonfrontend:
     image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti/jsonfrontend:${FORTI_TAG:-latest}
-    build:
-      context: ..
-      dockerfile: jsonfrontend/build/package/Dockerfile
     expose:
       - "8080"
       - "9090"
@@ -74,9 +65,6 @@ services:
 
   healthz:
     image: ${FORTI_REGISTRY:-ghcr.io/metno}/forti/healthz:${FORTI_TAG:-latest}
-    build:
-      context: ..
-      dockerfile: healthz/build/package/Dockerfile
     expose:
       - "8080"
     volumes:
