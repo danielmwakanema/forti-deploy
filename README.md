@@ -93,7 +93,28 @@ Some useful metrics queries:
 
 ### Enabling correctedforecaster
 
-`correctedforecaster` is disabled by default. To enable it, set both variables in your `.env` file:
+`correctedforecaster` is disabled by default and requires topography data before first use.
+
+#### Downloading topography data
+
+Before enabling `correctedforecaster`, download the required topography tiles using the included script:
+
+```bash
+./download-topography.sh \
+  --lat-min -17 --lat-max -9 \
+  --lon-min 32 --lon-max 36 \
+  --output ../data/topography
+```
+
+The script downloads Copernicus DEM GLO-30 tiles (30m resolution, free and open) for the specified bounding box. Each 1°×1° tile is approximately 100MB. Run `./download-topography.sh --help` for all options.
+
+**Example regions:**
+- **Malawi**: `--lat-min -17 --lat-max -9 --lon-min 32 --lon-max 36`
+- **Kenya**: `--lat-min -5 --lat-max 5 --lon-min 33 --lon-max 42`
+
+#### Enabling the service
+
+Once topography data is downloaded, enable `correctedforecaster` by setting both variables in your `.env` file:
 
 ```bash
 COMPOSE_PROFILES=corrected
