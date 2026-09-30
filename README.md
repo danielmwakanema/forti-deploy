@@ -28,6 +28,15 @@ By default, the Compose setup expects forecast data to be available at `../data/
 
 ## Usage
 
+Create the service config files from the examples (both are gitignored, so local edits stay out of the repository):
+
+```bash
+cp rawdataforecaster.config.json.example rawdataforecaster.config.json
+cp jsonfrontend.config.json.example jsonfrontend.config.json
+```
+
+Both files must exist before starting the services: if a mounted file is missing, Docker creates an empty directory in its place and the service fails to start.
+
 Build and start the base services:
 
 ```bash
@@ -170,7 +179,7 @@ cp .env.example .env
 
 ## Configuration
 
-`rawdataforecaster.config.json` configures how `rawdataforecaster` reads forecast data:
+`rawdataforecaster.config.json` (copied from `rawdataforecaster.config.json.example`) configures how `rawdataforecaster` reads forecast data:
 
 ```json
 {
@@ -188,7 +197,7 @@ cp .env.example .env
 - **`areas`** — list of forecast areas to load (e.g. `meps`).
 - **`loader.type`** — `"blob"` streams data on demand rather than loading everything into memory. Keep this as `"blob"` unless you have a specific reason to change it.
 
-`jsonfrontend.config.json` controls what `jsonfrontend` serves: it maps internal forecast parameter names (keys) to the names used in the JSON response (values), grouped by time period (`instant`, `next_1_hours`, `next_6_hours`, ...). A parameter that is present in the forecast data but not listed here is not served. The file started as a copy of the image's built-in default, plus `soil_moisture` and `soil_temperature` under `instant`. To serve another parameter, add it here and restart `jsonfrontend`:
+`jsonfrontend.config.json` (copied from `jsonfrontend.config.json.example`) controls what `jsonfrontend` serves: it maps internal forecast parameter names (keys) to the names used in the JSON response (values), grouped by time period (`instant`, `next_1_hours`, `next_6_hours`, ...). A parameter that is present in the forecast data but not listed here is not served. The file started as a copy of the image's built-in default, plus `soil_moisture` and `soil_temperature` under `instant`. To serve another parameter, add it here and restart `jsonfrontend`:
 
 ```bash
 docker compose up -d --force-recreate jsonfrontend
