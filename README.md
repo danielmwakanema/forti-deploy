@@ -160,6 +160,7 @@ Caddy will automatically obtain and renew Let's Encrypt certificates. Make sure:
 | `FORECAST_DATA_PATH` | `../data/forecast` | Path to the local forecast data directory |
 | `TOPOGRAPHY_DATA_PATH` | `../data/topography` | Path to the local topography data directory (used by `correctedforecaster`) |
 | `JSONFRONTEND_UPSTREAM` | `rawdataforecaster:5052` | gRPC upstream address for `jsonfrontend` |
+| `JSONFRONTEND_CONFIG` | `./jsonfrontend.config.json` | Output mapping file for `jsonfrontend` (which parameters are served, and their names) |
 
 These can be set in a `.env` file in the repository root (`.env` is gitignored). Copy `.env.example` as a starting point:
 
@@ -186,3 +187,11 @@ cp .env.example .env
 - **`source.bucket`** — points to the mounted forecast data directory inside the container.
 - **`areas`** — list of forecast areas to load (e.g. `meps`).
 - **`loader.type`** — `"blob"` streams data on demand rather than loading everything into memory. Keep this as `"blob"` unless you have a specific reason to change it.
+
+`jsonfrontend.config.json` controls what `jsonfrontend` serves: it maps internal forecast parameter names (keys) to the names used in the JSON response (values), grouped by time period (`instant`, `next_1_hours`, `next_6_hours`, ...). A parameter that is present in the forecast data but not listed here is not served. The file started as a copy of the image's built-in default, plus `soil_moisture` and `soil_temperature` under `instant`. To serve another parameter, add it here and restart `jsonfrontend`:
+
+```bash
+docker compose up -d --force-recreate jsonfrontend
+```
+
+Point `JSONFRONTEND_CONFIG` at a different file to use another mapping.

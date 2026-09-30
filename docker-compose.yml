@@ -54,9 +54,13 @@ services:
     expose:
       - "8080"
       - "9090"
+    volumes:
+      - ${JSONFRONTEND_CONFIG:-./jsonfrontend.config.json}:/etc/forti/jsonformat.json:ro
     command:
       - "-upstream"
       - "${JSONFRONTEND_UPSTREAM:-rawdataforecaster:5052}"
+      - "-config"
+      - "/etc/forti/jsonformat.json"
     depends_on:
       - rawdataforecaster
     networks:
